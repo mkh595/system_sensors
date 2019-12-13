@@ -14,7 +14,7 @@ from pytz import timezone
 UTC = pytz.utc
 DEFAULT_TIME_ZONE = timezone(os.getenv('TZ', 'Europe/Berlin'))#Local Time zone
 broker_url = os.getenv('MQTT_HOST', 'localhost')
-broker_port = os.getenv('MQTT_PORT', 1883)
+broker_port = int(os.getenv('MQTT_PORT', 1883))
 client = mqtt.Client()
 #client.username_pw_set("", "") #Username and pass if configured otherwise you should comment out this
 deviceName = os.getenv('DEVICE_NAME', 'pi')
