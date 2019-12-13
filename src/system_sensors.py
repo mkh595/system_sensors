@@ -11,17 +11,15 @@ import paho.mqtt.client as mqtt
 import pytz
 from pytz import timezone
 
-
-
 UTC = pytz.utc
-DEFAULT_TIME_ZONE = timezone('Europe/Brussels')#Local Time zone
-broker_url = ""#MQTT server IP
-broker_port = 1883 #MQTT server port
+DEFAULT_TIME_ZONE = timezone(os.getenv('TZ', 'Europe/Berlin'))#Local Time zone
+broker_url = os.getenv('MQTT_HOST', 'localhost')
+broker_port = os.getenv('MQTT_PORT', 1883)
 client = mqtt.Client()
 #client.username_pw_set("", "") #Username and pass if configured otherwise you should comment out this
-deviceName = "" #Name of your PI
+deviceName = os.getenv('DEVICE_NAME', 'pi')
 SYSFILE = '/sys/devices/platform/soc/soc:firmware/get_throttled'
-WAIT_TIME_SECONDS = 60
+WAIT_TIME_SECONDS = os.getenv('WAIT_TIME', 60)
 
 class ProgramKilled(Exception):
     pass
