@@ -64,7 +64,7 @@ def updateSensors():
    client.publish(topic="system-sensors/sensor/"+ deviceName +"/state", payload='{"temperature": '+ get_temp() +', "disk_use": '+ get_disk_usage() + ', "memory_use": '+ get_memory_usage() +', "cpu_usage": '+ get_cpu_usage() +', "swap_usage": '+ get_swap_usage() +', "power_status": "'+ get_rpi_power_status() +'", "last_boot": "'+ get_last_boot() +'"}', qos=1, retain=False)
 
 def get_temp():
-    temp = check_output(["vcgencmd","measure_temp"]).decode("UTF-8")
+    temp = check_output(["/opt/vc/bin/vcgencmd","measure_temp"]).decode("UTF-8")
     return str(findall("\d+\.\d+",temp)[0])
 
 def get_disk_usage():
