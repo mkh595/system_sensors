@@ -162,18 +162,14 @@ def get_temp():
 def get_disk_usage(path):
     return str(psutil.disk_usage(path).percent)
 
-
 def get_memory_usage():
     return str(psutil.virtual_memory().percent)
-
 
 def get_cpu_usage():
     return str(psutil.cpu_percent(interval=None))
 
-
 def get_swap_usage():
     return str(psutil.swap_memory().percent)
-
 
 def get_wifi_strength():  # check_output(["/proc/net/wireless", "grep wlan0"])
     wifi_strength_value = check_output(
@@ -186,7 +182,6 @@ def get_wifi_strength():  # check_output(["/proc/net/wireless", "grep wlan0"])
     if not wifi_strength_value:
         wifi_strength_value = "0"
     return (wifi_strength_value)
-
 
 def get_rpi_power_status():
     return _underVoltage.get()
@@ -316,7 +311,6 @@ def check_settings(settings):
     if "power_integer_state" in settings:
         write_message_to_console("power_integer_state is deprecated please remove this option power state is now a binary_sensor!")
 
-
 def send_config_message(mqttClient):
     write_message_to_console("send config message")
     mqttClient.publish(
@@ -349,7 +343,6 @@ def send_config_message(mqttClient):
         qos=1,
         retain=True,
     )
-    
     mqttClient.publish(
         topic=f"homeassistant/sensor/{deviceName}/memory_use/config",
         payload=f"{{\"name\":\"{deviceNameDisplay} Memory Use\","
@@ -364,7 +357,6 @@ def send_config_message(mqttClient):
         qos=1,
         retain=True,
     )
-    
     mqttClient.publish(
         topic=f"homeassistant/sensor/{deviceName}/cpu_usage/config",
         payload=f"{{\"name\":\"{deviceNameDisplay} Cpu Usage\","
@@ -379,7 +371,6 @@ def send_config_message(mqttClient):
         qos=1,
         retain=True,
     )
-    
     mqttClient.publish(
         topic=f"homeassistant/sensor/{deviceName}/swap_usage/config",
         payload=f"{{\"name\":\"{deviceNameDisplay} Swap Usage\","
@@ -394,7 +385,6 @@ def send_config_message(mqttClient):
         qos=1,
         retain=True,
     )
-    
     mqttClient.publish(
         topic=f"homeassistant/binary_sensor/{deviceName}/power_status/config",
         payload='{"device_class":"problem",'
@@ -409,8 +399,6 @@ def send_config_message(mqttClient):
         qos=1,
         retain=True,
     )
-    
-   
     mqttClient.publish(
         topic=f"homeassistant/sensor/{deviceName}/last_boot/config",
         payload='{"device_class":"timestamp",'
@@ -492,8 +480,6 @@ def send_config_message(mqttClient):
         retain=True,
     )
 
-
-
     if "check_available_updates" in settings and settings["check_available_updates"]:
         # import apt
         if(apt_disabled):
@@ -512,7 +498,6 @@ def send_config_message(mqttClient):
                 qos=1,
                 retain=True,
             )
-            
 
     if "check_wifi_strength" in settings and settings["check_wifi_strength"]:
         mqttClient.publish(
@@ -530,7 +515,7 @@ def send_config_message(mqttClient):
             qos=1,
             retain=True,
         )
-        
+
     if "external_drives" in settings:
         for drive in settings["external_drives"]:
             mqttClient.publish(
@@ -547,10 +532,8 @@ def send_config_message(mqttClient):
                 qos=1,
                 retain=True,
             )
-            
 
     mqttClient.publish(f"system-sensors/sensor/{deviceName}/availability", "online", retain=True)
-
 
 def _parser():
     """Generate argument parser"""
@@ -566,7 +549,6 @@ def on_connect(client, userdata, flags, rc):
         mqttClient.publish(f"system-sensors/sensor/{deviceName}/availability", "online", retain=True)
     else:
         write_message_to_console("Connection failed")
-
 
 if __name__ == "__main__":
     args = _parser().parse_args()
