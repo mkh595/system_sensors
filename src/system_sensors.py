@@ -3,12 +3,13 @@ import argparse
 import datetime as dt
 import signal
 import sys
+import os
 import socket
 import platform
 import threading
 import time
 from datetime import timedelta
-from re import findall
+import re
 from subprocess import check_output
 from rpi_bad_power import new_under_voltage
 import paho.mqtt.client as mqtt
@@ -26,9 +27,17 @@ except ImportError:
 UTC = pytz.utc
 DEFAULT_TIME_ZONE = None
 
+isDockerized = bool(os.getenv('YES_YOU_ARE_IN_A_CONTAINER', False))
+
+vcgencmd   = "vcgencmd"
+os_release = "/etc/os-release"
+if isDockerized:
+    os_release = "/app/host/os-release"
+    vcgencmd   = "/opt/vc/bin/vcgencmd"
+
 # Get OS information
 OS_DATA = {}
-with open("/etc/os-release") as f:
+with open(os_release) as f:
     reader = csv.reader(f, delimiter="=")
     for row in reader:
         if row:
@@ -141,10 +150,10 @@ def get_updates():
 
 # Temperature method depending on system distro
 def get_temp():
-    temp = "";
+    temp = ""
     if "rasp" in OS_DATA["ID"]:
-        reading = check_output(["vcgencmd", "measure_temp"]).decode("UTF-8")
-        temp = str(findall("\d+\.\d+", reading)[0])
+        reading = check_output([vcgencmd, "measure_temp"]).decode("UTF-8")
+        temp = str(re.findall("\d+\.\d+", reading)[0])
     else:
         reading = check_output(["cat", "/sys/class/thermal/thermal_zone0/temp"]).decode("UTF-8")
         temp = str(reading[0] + reading[1] + "." + reading[2])
