@@ -581,6 +581,8 @@ if __name__ == "__main__":
     except:
         write_message_to_console("something whent wrong")
     _underVoltage = new_under_voltage()
+    # update all sensor values on startup
+    updateSensors()
     job = Job(interval=timedelta(seconds=WAIT_TIME_SECONDS), execute=updateSensors)
     job.start()
 
