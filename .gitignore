@@ -108,4 +108,4 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-/src/settings.yaml
+/config
