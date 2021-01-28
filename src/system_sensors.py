@@ -103,14 +103,22 @@ def get_last_message():
 
 def on_message(client, userdata, message):
     print (f"Message received: {message.payload.decode()}"  )
-    if(message.payload.decode() == "online"):
+
+    if message.payload.decode() == "online":
         send_config_message(client)
+    elif message.payload.decode() == "display_on":
+        reading = check_output([vcgencmd, "display_power", "1"]).decode("UTF-8")
+        updateSensors()
+    elif message.payload.decode() == "display_off":
+        reading = check_output([vcgencmd, "display_power", "0"]).decode("UTF-8")
+        updateSensors()
 
 
 def updateSensors():
     payload_str = (
         '{'
         + f'"temperature": {get_temp()},'
+        + f'"display": "{get_display_status()}",'
         + f'"disk_use": {get_disk_usage("/")},'
         + f'"memory_use": {get_memory_usage()},'
         + f'"cpu_usage": {get_cpu_usage()},'
@@ -158,6 +166,16 @@ def get_temp():
         reading = check_output(["cat", "/sys/class/thermal/thermal_zone0/temp"]).decode("UTF-8")
         temp = str(reading[0] + reading[1] + "." + reading[2])
     return temp
+
+# display power method depending on system distro
+def get_display_status():
+    display_state = ""
+    if "rasp" in OS_DATA["ID"]:
+        reading = check_output([vcgencmd, "display_power"]).decode("UTF-8")
+        display_state = str(re.findall("^display_power=(?P<display_state>[01]{1})$", reading)[0])
+    else:
+        display_state = "Unknown"
+    return display_state
 
 # host model method depending on system distro
 def get_host_model():
@@ -336,6 +354,14 @@ def remove_old_topics():
                 retain=False,
             )
 
+    if "rasp" in OS_DATA["ID"]:
+        mqttClient.publish(
+            topic=f"homeassistant/switch/{deviceNameDisplay}/{deviceNameDisplay}Display/config",
+
+            payload='',
+            qos=1,
+            retain=False,
+        )
 
 def check_settings(settings):
     if "mqtt" not in settings:
@@ -373,7 +399,31 @@ def send_config_message(mqttClient):
         qos=1,
         retain=True,
     )
-    
+    if "rasp" in OS_DATA["ID"]:
+        mqttClient.publish(
+            topic=f"homeassistant/switch/{deviceName}/display/config",
+            payload='{'
+                    + f"\"name\":\"{deviceNameDisplay} Display Switch\","
+                    + f"\"unique_id\":\"{deviceName}_switch_display\","
+                    + f"\"availability_topic\":\"system-sensors/sensor/{deviceName}/availability\","
+                    + f"\"command_topic\":\"system-sensors/sensor/{deviceName}/command\","
+                    + f"\"state_topic\":\"system-sensors/sensor/{deviceName}/state\","
+                    + '"value_template":"{{value_json.display}}",'
+                    + '"state_off":"0",'
+                    + '"state_on":"1",'
+                    + '"payload_off":"display_off",'
+                    + '"payload_on":"display_on",'
+                    + f"\"device\":{{"
+                        + f"\"identifiers\":[\"{deviceName}_sensor\"],"
+                        + f"\"name\":\"{deviceNameDisplay} Sensors\","
+                        + f"\"model\":\"{deviceModel}\","
+                        + '"manufacturer":"RPI Foundation"'
+                    + '},'
+                    + '"icon":"mdi:monitor"}',
+            qos=1,
+            retain=True,
+        )
+
     mqttClient.publish(
         topic=f"homeassistant/sensor/{deviceName}/disk_use/config",
         payload=f"{{\"name\":\"{deviceNameDisplay} Disk Use\","
@@ -590,8 +640,12 @@ def _parser():
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         write_message_to_console("Connected to broker")
+        print("subscribing : hass/status")
         client.subscribe("hass/status")
-        mqttClient.publish(f"system-sensors/sensor/{deviceName}/availability", "online", retain=True)
+        print("subscribing : " + f"system-sensors/sensor/{deviceName}/command")
+        client.subscribe(f"system-sensors/sensor/{deviceName}/command")#subscribe
+        client.publish(f"system-sensors/sensor/{deviceName}/command", "setup", retain=True)
+        client.publish(f"system-sensors/sensor/{deviceName}/availability", "online", retain=True)
     else:
         write_message_to_console("Connection failed")
 
