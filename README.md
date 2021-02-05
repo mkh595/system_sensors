@@ -62,18 +62,17 @@ You need to have at least __python 3.6__ installed to use System Sensors.
 # Docker
 ## Start Container
 Running in docker container is very symplistic:
-```
+
 1.Download docker-compose.yml
 
 2. Run
-docker-compose up -d
+``` docker-compose up -d ```
 
 3. After first run
 
-docker-compose down
+```docker-compose down```
 
 4. Modify settings.yaml in config folder
-```
 
 # Home Assistant configuration:
 ## Configuration:
