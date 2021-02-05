@@ -60,19 +60,19 @@ You need to have at least __python 3.6__ installed to use System Sensors.
     5. sudo systemctl start system_sensors.service
    
 # Docker
-## Preparations
-Before running this application in a docker container you'll need to add the following to the crontab
-```
-@reboot <git clone location>/src/bin/ip_pipe.sh
-```
-This little script will create a pipe and fetch the Host OS IP address and put it in the pipe.  
-The container will have the pipe mounted `/tmp/system_sensor_pipe:/app/host/system_sensor_pipe:ro` so it can read the ip.  
-this is required sinds docker can't and *shouldn't* access the host OS
-
 ## Start Container
 Running in docker container is very symplistic:
 ```
+1.Download docker-compose.yml
+
+2. Run
 docker-compose up -d
+
+3. After first run
+
+docker-compose down
+
+4. Modify settings.yaml in config folder
 ```
 
 # Home Assistant configuration:
