@@ -1,7 +1,7 @@
 version: '2'
 services:
   monitoring:
-    image: zonagadget/system_sensors:latest
+    image: mkh595/system_sensors:latest
     container_name: system-sensors
     devices:
       - /dev/vchiq
