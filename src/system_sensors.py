@@ -15,8 +15,8 @@ UTC = pytz.utc
 DEFAULT_TIME_ZONE = timezone(os.getenv('TZ', 'Europe/Berlin'))#Local Time zone
 broker_url = os.getenv('MQTT_HOST', 'localhost')
 broker_port = int(os.getenv('MQTT_PORT', 1883))
-client = mqtt.Client()
-#client.username_pw_set("", "") #Username and pass if configured otherwise you should comment out this
+# client = mqtt.Client()
+client.username_pw_set(os.getenv('MQTT_USER', ""), os.getenv('MQTT_PASSWORD', "")) #Username and pass if configured otherwise you should comment out this
 deviceName = os.getenv('DEVICE_NAME', 'pi')
 SYSFILE = '/sys/devices/platform/soc/soc:firmware/get_throttled'
 WAIT_TIME_SECONDS = int(os.getenv('WAIT_TIME', 60))
